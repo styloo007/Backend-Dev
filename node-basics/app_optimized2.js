@@ -17,10 +17,17 @@ const checkFileExists = async(filePath) => {
 const processFile = async() =>{
     try{
         const inputExists = await checkFileExists(inputFilePath);
+        const outputExists = await checkFileExists(outputFilePath);
         if(!inputExists){
             console.error(`Input File doesnt exist ${inputFilePath}`);
             return;
         }
+
+        if(!outputExists){
+            console.error(`Output File doesnt exist ${outputFilePath}`);
+            return
+        }
+        
 
         const data=await fs.readFile(inputFilePath, 'utf8');
         console.log("File Read Successful", data);
