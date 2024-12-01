@@ -14,11 +14,12 @@ app.use(bodyParser.json());
 
 const loginRoute = require('./routes/login');
 const registerRoute = require('./routes/register');
-
+const protectedRoute = require('./routes/protected');
 
 
 app.use('/register',registerRoute);
 app.use('/login',loginRoute);
+app.use('/protected',protectedRoute);
 
 const connectDB = async() =>{
     try{
