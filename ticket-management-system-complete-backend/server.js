@@ -11,6 +11,7 @@ app.use(express.json());
 
 app.use('/api/auth', require('./routes/userRoutes'));
 app.use('/api/tickets', require('./routes/ticketRoutes'));
+app.use('/api/admin', require('./routes/adminRoutes'));
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, ()=>{

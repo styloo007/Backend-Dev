@@ -70,3 +70,35 @@ exports.login = async(req,res) =>{
 };
 
 
+exports.addUser = async(req,res) =>{
+    try{
+        const existingUser = await User.findOne({email:req.body.email});
+        if(existingUser){
+            return res.status(400).json({message: 'User Already Exists'});
+        }
+        const newUser = await User(req.body);
+        await newUser.save();
+        return res.status(201).json({message: 'User Added Successfully', 'User':user});
+    }
+    catch(err){
+        console.error(`Error Adding New User: ${err.message}`);
+        return res.status(500).json({message: 'Internal Server Error'});
+    }
+};
+
+
+exports.deleteUser = async(req,res)  =>{
+    try{
+        const user = await User.findById({email:req.params.id});
+        if(!user){
+            return res.status(404).json({message: 'User Does Not Exist'});
+        }
+
+        await user.deleteOne();
+        return res.status(200).json({message: 'User Deleted Successfully'}); 
+    }
+    catch(err){
+        console.error(`Error Deleting User: ${err.message}`);
+        return res.status(500).json({message: 'Internal Server Error'});
+    }
+}
