@@ -1,10 +1,7 @@
 const {verifyToken} = require('../utils/jwtUtils');
 
 const authMiddleWare = (req,res,next) =>{
-    console.log(req.body);
-    console.log(req.params);
-    const token = req.headers['authorization'];
-    console.log(token);
+    const token = req.header('Authorization')?.split(' ')[1];
     if(!token){
         return res.status(401).json({message: 'Access Denied'});
     }

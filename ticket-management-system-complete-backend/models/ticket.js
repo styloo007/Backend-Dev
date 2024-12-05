@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 
 const ticketSchema = new mongoose.Schema({
+    ticketID:{type:String, required:true, unique:true},
     title:{type: String},
     description:{type:String},
     status:{type:String, enum: ['Active','Pending','Closed'], default:'Pending'},

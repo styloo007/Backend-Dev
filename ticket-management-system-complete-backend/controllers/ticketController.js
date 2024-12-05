@@ -1,9 +1,10 @@
-const ticket = require('../models/ticket');
 const Ticket = require('../models/ticket');
+const {v4: uuidv4} = require('uuid');
 
 exports.createTicket = async(req,res) =>{
     try{
-        const ticket = new Ticket({ ...req.body, userID: req.user.id});
+        const ticketID = uuidv4();
+        const ticket = new Ticket({ ...req.body, userID: req.user.id,ticketID});
         await ticket.save();
         res.status(201).json(ticket);
     }
@@ -16,7 +17,7 @@ exports.createTicket = async(req,res) =>{
 exports.getTickets = async(req,res) =>{
     try{
         const tickets = req.user.role === 'Customer'
-            ? await Ticket.find({userId: req.user.id})
+            ? await Ticket.find({userID: req.user.id})
             : await Ticket.find();
         return res.status(200).json(tickets);
     }

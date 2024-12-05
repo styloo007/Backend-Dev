@@ -23,7 +23,7 @@ const validatePassword = async(text) =>{
 
 
 exports.register = async(req,res) =>{
-    const {userName,email,password} = req.body;
+    const {userName,email,password,role} = req.body;
     try{
         const user = await User.findOne({email});
         if(user){
@@ -37,7 +37,7 @@ exports.register = async(req,res) =>{
 
         const newPassword = await bcrypt.hash(password,10);
 
-        const newUser = new User({userName,email,password:newPassword});
+        const newUser = new User({userName,email,password:newPassword,role});
         await newUser.save();
 
         return res.status(201).json({message: 'User Registraton Successful', newUser});
@@ -61,7 +61,7 @@ exports.login = async(req,res) =>{
         }
 
         const token = generateToken(user);
-        return res.status(200).json({message: 'Login Successful', token});
+        return res.status(200).json({message: 'Login Successful', user, token});
     }
     catch(err){
         console.error(`Error Logging User In: ${err.message}`);
