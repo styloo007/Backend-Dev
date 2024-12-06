@@ -78,7 +78,7 @@ exports.addUser = async(req,res) =>{
         }
         const newUser = await User(req.body);
         await newUser.save();
-        return res.status(201).json({message: 'User Added Successfully', 'User':user});
+        return res.status(201).json({message: 'User Added Successfully', 'User':newUser});
     }
     catch(err){
         console.error(`Error Adding New User: ${err.message}`);
@@ -89,7 +89,14 @@ exports.addUser = async(req,res) =>{
 
 exports.deleteUser = async(req,res)  =>{
     try{
-        const user = await User.findById({email:req.params.id});
+
+        const email = req.body.email;
+        if(!email){
+            return res.status(400).json({message: 'Email is Required'});
+        };
+
+        const user = await User.findOneAndDelete({email});
+        
         if(!user){
             return res.status(404).json({message: 'User Does Not Exist'});
         }
