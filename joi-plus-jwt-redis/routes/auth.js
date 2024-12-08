@@ -13,12 +13,7 @@ const router = express.Router();
 
 const registerSchema = joi.object({
     email: joi.string().email().required(),
-    password: joi.string()
-        .pattern(new RegExp('^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$'))
-        .required()
-        .message({
-            "string.pattern.base":"Password must be atleast 8 characters long, include an uppercase, a lower case, a number and a special character",
-        })
+    password: joi.string().alphanum().min(8).max(30).required(),
 });
 
 const loginSchema = joi.object({
@@ -27,30 +22,40 @@ const loginSchema = joi.object({
 });
 
 
-router.post('/register', async(req,res) => {
-    const {error } = registerSchema.validate(req.body);
-    if(error){
-        return res.status(400).json({message: error.details[0].message});
+router.post('/register', async (req, res) => {
+    console.log('Request Body:', req.body);
+
+    const { error } = registerSchema.validate(req.body);
+    if (error) {
+        console.error('Validation Error:', error.details);
+        return res.status(400).json({ message: error.details[0].message });
     }
-    try{
-        const {email,password} = req.body;
-        const user = await User.findOne({email});
-        if(user){
-            return res.status(400).json({message: 'User Already Exists'});
+
+    try {
+        const { email, password } = req.body;
+
+        console.log(`Checking for existing user with email: ${email}`);
+        const user = await User.findOne({ email });
+        if (user) {
+            console.log('User Already Exists:', user);
+            return res.status(400).json({ message: 'User Already Exists' });
         }
 
+        console.log('Hashing password...');
         const hashedPass = await bcrypt.hash(password, 10);
 
-        const newUser = new User({email, password:hashedPass});
+        console.log('Creating new user...');
+        const newUser = new User({ email, password: hashedPass });
         await newUser.save();
 
-        return res.status(201).json({message: 'User Registered Successfully', newUser});
+        console.log('User Registered Successfully:', newUser);
+        return res.status(201).json({ message: 'User Registered Successfully', user: newUser });
+    } catch (err) {
+        console.error('Error Registering User:', err.message, err.stack);
+        return res.status(500).json({ error: 'Internal Server Error' });
     }
-    catch(err){
-        console.error(`Error Registering User: ${err.message}`);
-        return res.status(500).json({error: 'Internal Server Error'});
-    }
-} );
+});
+
 
 
 router.post('/login', async(req,res) =>{
@@ -69,7 +74,7 @@ router.post('/login', async(req,res) =>{
         if(!isPassCorrect){
             return res.status(400).json({message: 'Invalid Credentials'});
         }
-        const token = jwt.sign({id:user._id}, process.env.JWT_SECRET,{EXPIRES_IN: process.env.JWT_EXPIRES_IN});
+        const token = jwt.sign({id:user._id}, process.env.JWT_SECRET,{expiresIn: process.env.JWT_EXPIRES_IN});
 
         return res.status(201).json({message: 'Login Successful',token});
     }
